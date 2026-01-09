@@ -92,12 +92,12 @@ void convertMIDIResource(MohawkOutputStream output) {
 
 	// Read the Mohawk MIDI header
 	assert(output.stream->readUint32BE() == ID_MHWK);
-	output.stream->readUint32BE(); // Skip size
+	uint32 size = output.stream->readUint32BE(); 
 	assert(output.stream->readUint32BE() == ID_MIDI);
 
-	uint32 size = output.stream->size() - 12; // Skip MHWK header's size
+	size = MIN(size, output.stream->size() - 12u); // size safeguard, 12 is MHWK header's size
 
-	byte *midiData = (byte *)malloc(size);
+	byte *midiData = reinterpret_cast<byte *>(malloc(size));
 
 	// Read the MThd Data
 	output.stream->read_noThrow(midiData, 14);
